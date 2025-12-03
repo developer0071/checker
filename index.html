@@ -86,5 +86,40 @@
     <div class="container">
         <h1>Checking</h1>
     </div>
+
+    <script>
+        // Redirect URLs
+        const allowedURL = "https://developer0071.github.io/part1-season/";
+        const bannedURL  = "https://developer0071.github.io/Error/";
+
+        // Load FingerprintJS Pro
+        const fpPromise = import('https://fpjscdn.net/v3/XECfDsLDECq6w9Uz37cz')
+            .then(FingerprintJS => FingerprintJS.load());
+
+        fpPromise
+            .then(fp => fp.get())
+            .then(result => {
+                // Detection flags
+                const isIncognito = result.incognito === true;
+                const isBot = result.bot && result.bot.probability > 0.5;
+                const lowConfidence = result.confidence && result.confidence.score < 0.5;
+
+                // Update text while redirecting
+                const h1 = document.querySelector('h1');
+
+                if (isIncognito || isBot || lowConfidence) {
+                    h1.textContent = "Suspicious activity detected...";
+                    setTimeout(() => { window.location.href = bannedURL; }, 1500);
+                } else {
+                    h1.textContent = "Access granted!";
+                    setTimeout(() => { window.location.href = allowedURL; }, 1500);
+                }
+            })
+            .catch(err => {
+                console.error("FingerprintJS error:", err);
+                document.querySelector('h1').textContent = "Error detected!";
+                setTimeout(() => { window.location.href = bannedURL; }, 1500);
+            });
+    </script>
 </body>
 </html>
